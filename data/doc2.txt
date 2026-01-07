@@ -1,0 +1,1 @@
+﻿Indexing organizes documents into a structure that makes searching fast. In RAG systems, indexing is done before users ask questions.
