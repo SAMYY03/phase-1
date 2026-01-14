@@ -1,60 +1,78 @@
-from transformers import pipeline
+import requests
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
+ # FUNCTION: to call local Ollama LLM \\\\\\\\\\
 
-def main() -> None:
-    print(">>> RUNNING FINAL PAGE 4 RAG SCRIPT <<<")
+def ollama_generate(prompt, model_name="deepseek-r1:1.5b"):
+    url = "http://127.0.0.1:11434/api/generate"
 
-    # 1) Local embeddings
+    payload = {
+        "model": model_name,
+        "prompt": prompt,
+        "stream": False, 
+        "options": {
+            "temperature": 0.7,
+            "top_p": 0.9
+        }
+    }
+
+    response = requests.post(url, json=payload)
+    response.raise_for_status()
+    data = response.json()
+    return data["response"]
+
+    # Main program \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+def main():
+    #  Embedding model for indexing and retrieval
     Settings.embed_model = HuggingFaceEmbedding(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
-    Settings.llm = None  # disable LlamaIndex LLM
+    Settings.llm = None
 
-    # 2) Load documents
+    #  Load docs and build index 
     documents = SimpleDirectoryReader("data").load_data()
-    print(f">>> Loaded {len(documents)} documents")
-    print("\n>>> RAW DOCUMENT TEXT <<<")
-    
-    for i, d in enumerate(documents):
-        # d.text may exist depending on version; fallback to str(d)
-        text = getattr(d, "text", None) or str(d)
-        print(f"\n--- Doc {i+1} raw ---")
-        print(text[:500])
-
-
-    # 3) Build index
     index = VectorStoreIndex.from_documents(documents)
 
-    # 4) Retrieve REAL content
-    question = "What is RAG?"
-    retriever = index.as_retriever(similarity_top_k=2)
-    nodes = retriever.retrieve(question)
+    #  Ask questions in a loop
+    while True:
+        question = input("\nEnter your question (or type 'exit'): ")
 
-    print(">>> RETRIEVED CONTENT <<<")
-    for i, node in enumerate(nodes):
-        print(f"\n--- Chunk {i+1} ---")
-        print(node.get_content())
+        
+        if question.lower() in ["exit", "quit"]:
+            print("Goodbye!")
+            break
 
-    context = "\n\n".join(node.get_content() for node in nodes)
+        #  Retrieve relevant chunks
+        retriever = index.as_retriever(similarity_top_k=2)
+        nodes = retriever.retrieve(question)
 
-    # 5) Local LLM
-    llm = pipeline("text-generation", model="distilgpt2")
+        #  Build context
+        if nodes:
+            context_parts = []
+            for node in nodes:
+                context_parts.append(node.get_content())
+            context = "\n\n".join(context_parts)
+        else:
+            context = "No context found."
 
-    prompt = (
-        "You are a strict QA assistant.\n"
-        "Use ONLY the context below to answer.\n"
-        "If the context is not enough, say: I don't know.\n\n"
-        f"Context:\n{context}\n\n"
-        f"Question: {question}\n"
-        "Answer:"
-    )
+        #  Build prompt
+        prompt = (
+            "You are a strict QA assistant.\n"
+            "Use ONLY the context below to answer.\n"
+            "If the context is not enough, say: I don't know.\n\n"
+            "Context:\n" + context + "\n\n"
+            "Question: " + question + "\n"
+            "Answer:"
+        )
 
-    result = llm(prompt, max_new_tokens=80, truncation=True)
+        #  Generate answer
+        answer = ollama_generate(prompt)
 
-    print("\n>>> FINAL ANSWER <<<\n")
-    print(result[0]["generated_text"])
+        #  Print result
+        print("\n ANSWER: \n")
+        print(answer)
 
 
 if __name__ == "__main__":

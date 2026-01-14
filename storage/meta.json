@@ -1,0 +1,16 @@
+{
+  "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+  "dim": 384,
+  "items": [
+    {
+      "id": 0,
+      "source": "doc1.txt",
+      "text": "﻿RAG stands for Retrieval-Augmented Generation. It retrieves relevant documents first, then uses an LLM to generate an answer grounded in that context."
+    },
+    {
+      "id": 1,
+      "source": "doc2.txt",
+      "text": "﻿Indexing organizes documents into a structure that makes searching fast. In RAG systems, indexing is done before users ask questions."
+    }
+  ]
+}
