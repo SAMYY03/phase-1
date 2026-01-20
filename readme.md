@@ -30,30 +30,11 @@ This milestone demonstrates a basic RAG pipeline implemented locally.
 - `app/FINAL_page4_rag.py`
 - `data/doc1.txt`, `data/doc2.txt`
 
-## Milestone 3 (Page 5): FastAPI Embeddings + Vector Search (FAISS)
+## Phase 1 – Page 5
 
-### Learning Objectives
-- Preprocess text data, create embeddings, and index documents.
-- Expose these operations via FastAPI endpoints.
+This project preprocesses text documents, generates embeddings using
+sentence-transformers/all-MiniLM-L6-v2, and indexes them using FAISS.
 
-### Activities
-- Prepare dataset (text files) under the `data/` folder.
-- Generate embeddings locally using `sentence-transformers/all-MiniLM-L6-v2`.
-- Build a vector index using FAISS (cosine similarity via normalized vectors).
-- Build a FastAPI service with endpoints:
-  - `POST /index` → preprocess + embed + index documents
-  - `POST /search` → accept a query and return relevant document chunks
-
-### Project Structure
-- `app/api.py` — FastAPI endpoints (`/index`, `/search`)
-- `app/indexer.py` — preprocessing, chunking, embeddings, FAISS indexing/search
-- `app/store.py` — saving/loading FAISS index + metadata to/from `storage/`
-- `data/` — dataset documents (`.txt` files)
-- `storage/` — generated FAISS index + metadata (created after indexing)
-
-### Setup
-Activate your venv first, then install dependencies:
-
-```bash
-py -m pip install fastapi uvicorn sentence-transformers faiss-cpu
-
+The FastAPI service exposes:
+- POST /index : preprocess and index documents from the data folder
+- POST /search : search indexed documents and return relevant text chunks
