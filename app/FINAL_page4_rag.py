@@ -2,7 +2,6 @@ import requests
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
- # FUNCTION: to call local Ollama LLM \\\\\\\\\\
 
 def ollama_generate(prompt, model_name="deepseek-r1:1.5b"):
     url = "http://127.0.0.1:11434/api/generate"
@@ -22,7 +21,7 @@ def ollama_generate(prompt, model_name="deepseek-r1:1.5b"):
     data = response.json()
     return data["response"]
 
-    # Main program \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    # Main  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 def main():
     #  Embedding model for indexing and retrieval
