@@ -10,18 +10,17 @@ from app.prompts import build_chat_prompt
 
 app = FastAPI()
 
-# ---------- Init DB ----------
 init_db()
 
-# ---------- Embedding model ----------
+# Embedding model
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-# ---------- Global memory ----------
+#  Global memory 
 faiss_index = None
 chunks = []
 
 
-# ---------- Read files ----------
+# Read files 
 def read_files():
     texts = []
     for f in os.listdir("data"):
@@ -31,12 +30,12 @@ def read_files():
     return texts
 
 
-# ---------- Chunk text ----------
+#  Chunk text 
 def chunk_text(text, size=500):
     return [text[i:i+size] for i in range(0, len(text), size)]
 
 
-# ---------- Embeddings ----------
+# Embeddings 
 def embed(texts):
     return model.encode(
         texts,
@@ -45,7 +44,7 @@ def embed(texts):
     ).astype("float32")
 
 
-# ---------- Ollama call ----------
+#  Ollama call 
 def ask_llm(prompt):
     response = requests.post(
         "http://127.0.0.1:11434/api/generate",
@@ -60,7 +59,7 @@ def ask_llm(prompt):
     return response.json()["response"]
 
 
-# ---------- Retrieval pipeline ----------
+# Retrieval pipeline 
 def retrieve_with_scores(query, top_k=2):
     """
     Returns:
@@ -92,10 +91,10 @@ def retrieve_with_scores(query, top_k=2):
     return context, retrieved, best_score
 
 
-# =========================
-# ENDPOINTS (PAGE 4)
-# =========================
 
+# ENDPOINTS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+#index////////////////////////
 @app.post("/index")
 def index_docs():
     global faiss_index, chunks
@@ -112,6 +111,7 @@ def index_docs():
 
     return {"status": "indexed", "chunks": len(chunks)}
 
+#search///////////////////////
 
 @app.post("/search")
 def search(query: str = Body(...), top_k: int = 2):
@@ -123,6 +123,7 @@ def search(query: str = Body(...), top_k: int = 2):
         "results": retrieved
     }
 
+#ask/////////////////////////////
 
 @app.post("/ask")
 def ask(query: str = Body(...), top_k: int = 2, strict: bool = True):
@@ -141,9 +142,7 @@ def ask(query: str = Body(...), top_k: int = 2, strict: bool = True):
     return {"query": query, "answer": answer.strip(), "best_score": best_score, "results": retrieved}
 
 
-# =========================
-# ENDPOINTS (PAGE 5)
-# =========================
+#chat///////////////////////////////
 
 @app.post("/chat")
 def chat(
@@ -152,30 +151,30 @@ def chat(
     top_k: int = 2,
     strict: bool = True
 ):
-    # 1) Create session if missing
+    # Create session if missing
     if not session_id:
         session_id = str(uuid.uuid4())
     ensure_session(session_id)
 
-    # 2) Save user message
+    # Save user message
     user_msg_id = save_message(session_id, "user", message)
 
-    # 3) Load recent history (includes the message we just saved)
+    # Load recent history (includes the message we just saved)
     history = get_history(session_id, limit=8)
 
-    # 4) Retrieve context from FAISS
+    # Retrieve context from FAISS
     context, retrieved, best_score = retrieve_with_scores(message, top_k=top_k)
 
-    # 5) Build prompt using history + context (prompt engineering)
+    # Build prompt using history + context (prompt engineering)
     prompt = build_chat_prompt(history, context, message, strict=strict)
 
-    # 6) Generate answer (Ollama)
+    # Generate answer 
     answer = ask_llm(prompt).strip()
 
-    # 7) Save assistant answer
+    # Save assistant answer
     save_message(session_id, "assistant", answer)
 
-    # 8) Save retrieval log
+    # Save retrieval log
     save_retrieval_log(session_id, user_msg_id, top_k, best_score, retrieved)
 
     return {
@@ -185,6 +184,7 @@ def chat(
         "retrieved": retrieved
     }
 
+#history//////////////////////////////
 
 @app.get("/history/{session_id}")
 def history(session_id: str):

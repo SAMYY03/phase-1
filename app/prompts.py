@@ -8,10 +8,10 @@ def build_chat_prompt(history, context, user_message, strict=True):
     - RETRIEVED CONTEXT
     """
 
-    # 1) Role Prompting (persona)
+    # Role Prompting 
     role = "You are a helpful AI assistant. Explain simply and clearly.\n"
 
-    # 2) Instruction Prompting (rules)
+    # Instruction Prompting 
     if strict:
         rules = (
             "Use ONLY the retrieved context to answer.\n"
@@ -20,7 +20,7 @@ def build_chat_prompt(history, context, user_message, strict=True):
     else:
         rules = "Use the context if useful, but you may use general knowledge.\n"
 
-    # 3) Few-shot prompting (one tiny example)
+    # Few-shot prompting 
     example = (
         "Example:\n"
         "Context: RAG = Retrieval-Augmented Generation.\n"
@@ -28,12 +28,12 @@ def build_chat_prompt(history, context, user_message, strict=True):
         "Assistant: RAG retrieves relevant text first, then generates an answer based on it.\n\n"
     )
 
-    # 4) History text
+    # History text
     history_text = ""
     for msg in history:
         history_text += f"{msg['role']}: {msg['content']}\n"
 
-    # 5) Final prompt
+    # Final prompt
     prompt = (
         role
         + rules
