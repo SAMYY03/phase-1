@@ -4,3 +4,10 @@ __pycache__/
 *.pyc
 storage/*.db
 
+
+phase-2-repo/
+phase-2/
+venv/
+__pycache__/
+*.pyc
+storage/*.db
