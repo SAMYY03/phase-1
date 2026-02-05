@@ -1,7 +1,7 @@
 """Phase 2 Multi-Agent system (Semantic Kernel) .
 
-Exposes ONLY:
-- POST /chat_sk  -> Semantic Kernel tool calling orchestrator
+
+- POST /chat_sk  : Semantic Kernel tool calling orchestrator
 """
 
 from __future__ import annotations
