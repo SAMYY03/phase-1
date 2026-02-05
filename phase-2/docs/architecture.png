@@ -1,0 +1,12 @@
+User
+ ↓
+FastAPI
+ ↓
+Semantic Kernel
+ ↓
+ManagerToolsPlugin
+ ├─ TaskDbAgent
+ ├─ KnowledgeRagAgent (RAG)
+ └─ EventBus
+        ↓
+     MCP / Slack
