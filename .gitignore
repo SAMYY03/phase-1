@@ -1,0 +1,6 @@
+phase-2/
+venv/
+__pycache__/
+*.pyc
+storage/*.db
+
