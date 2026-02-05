@@ -1,4 +1,4 @@
-#  AI Training – Phase 1  
+#  AI Training   
 Python Foundations & Retrieval-Augmented Generation (RAG)
 
 ##  Overview
